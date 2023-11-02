@@ -4,6 +4,9 @@ param(
     [switch]$s, 
 
     [Parameter(Mandatory = $false)]
+    [switch]$c, 
+
+    [Parameter(Mandatory = $false)]
     [string]$comment = $args[1]
 )
 
@@ -55,6 +58,16 @@ if (-not (Test-Path .git)) {
     } elseif ($s) {
         Write-Host "Please provide a commit comment."
     } else {
-        Write-Host "Invalid or missing parameters."
+        # if ($c) {
+        # 判断$c参数是否存在
+        if ($c) {
+            # 输出$c参数的值
+            # Write-Host $c
+            # 推送到两个远程仓库
+            git push github-origin main
+            git push gitea-origin main
+        } else {
+            Write-Host "Invalid or missing parameters."
+        }
     }
 }
