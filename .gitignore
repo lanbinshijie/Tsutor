@@ -161,7 +161,6 @@ cython_debug/
 
 # 缓存
 passages/*
-./passages
 
 .vscode
 .vscode/*
@@ -170,3 +169,7 @@ passages/*
 .vscode/*
 __pycache__
 __pycache__/*
+
+cache/
+cache/*
+cache
