@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from core import *
 
 app = Flask(__name__)
 
@@ -14,40 +15,42 @@ md = (
 )
 
 def generate_html_list(data):
-    data.reverse()
-    data1 = data[1:]
     html = "<ul>\n"
     count = len(data)
-    for item in data1:
-        title = item[0]
-        link = "/p/" + str(count)
-        html += f"<li><a href='{link}'>{title}</a></li>\n"
+    for item in data:
+        title = item["filename"]
+        catagory = item["category"]
+        hasher = item["hash"]
+        link = "/p/" + str(hasher)
+        html += f"<li><a href='{link}'>{catagory} | {title}</a></li>\n"
         count -= 1
     html += "</ul>"
     return html
 
 introDuction = """
-<p>最近发现Github上有很多很好的期刊，但是无奈环境受限无法随时随地查看这些期刊，于是写了一个Python Flask+爬虫的综合小项目。会定期更新文章列表并爬去GitHub仓库的期刊。用户可以选择喜欢的期刊并阅读。如果你觉得这个项目还可以，欢迎去Github点一个Star～</p>
+<p>期中考试临近，编写了一些复习资料，但苦于不喜欢收纳整理文件，所以想将它们都防盗网站是，故做了这个CMS系统，目前开发中，仅支持阅读。如果你觉得这个项目还可以，欢迎去Github点一个Star～</p>
 """
 
 @app.route("/")
 def index():
     # 调用 getNewestMD 函数获取 Markdown 内容
-    markdown_list = generate_html_list([('1. Econ', 1)])
+    print(list_and_cache_passages())
+    markdown_list = generate_html_list(list_and_cache_passages())
+    print(markdown_list)
     
     # 渲染模板并传递 HTML 内容
     return render_template("index.html", content=introDuction+markdown_list, namer="主页")
 
 @app.route("/save")
 def save():
-    getNewestList()
+    list_and_cache_passages(True)
     html = "<h1>保存成功！</h1>"
     return render_template("index.html", content=html)
 
 @app.route('/p/<string:idx>')
 def readPassage(idx):
     # 调用 getNewestMD 函数获取 Markdown 内容
-    markdown_text, name = getPassageByid(idx)
+    name, markdown_text = getById(idx)
     html_text = md.render(markdown_text)
     
 
