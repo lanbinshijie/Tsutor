@@ -24,6 +24,12 @@
         </div>
     </nav>
 
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Library</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Data</li>
+    </ol>
+
     <div class="container mt-5">
         <h1 class="text-center mb-5">{{ namer|safe }}</h1>
         <div>
@@ -41,6 +47,28 @@
     <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.staticfile.org/popper.js/2.9.3/umd/popper.min.js"></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <script>
+        // 为所有的链接元素添加点击事件监听器
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                // 阻止链接的默认行为
+                event.preventDefault();
 
+                // 获取 href 属性值，这应该是目标元素的 id
+                const targetId = this.getAttribute('href');
+
+                // 使用 querySelector 方法查找目标元素
+                const targetElement = document.querySelector(targetId);
+
+                // 如果找到了目标元素，就平滑地滚动到它
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+    </script>
 </body>
 </html>
