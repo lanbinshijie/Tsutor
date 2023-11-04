@@ -1,14 +1,26 @@
-# 解析命令行参数
 param(
     [Parameter(Mandatory = $false)]
-    [switch]$s, 
+    [switch]$s,
 
     [Parameter(Mandatory = $false)]
-    [switch]$c, 
+    [switch]$c,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$update,
 
     [Parameter(Mandatory = $false)]
     [string]$comment = $args[1]
 )
+
+function Set-Upstream {
+    $upstreamUrl = Read-Host "Please enter the upstream repository URL"
+    git remote add upstream $upstreamUrl
+}
+
+function Fetch-And-Merge-Upstream {
+    git fetch upstream
+    git merge upstream/main
+}
 
 # 检查当前文件夹是否是git仓库
 if (-not (Test-Path .git)) {
@@ -47,27 +59,42 @@ if (-not (Test-Path .git)) {
     # 切换到main分支
     git checkout main
 
+    if ($update) {
+        # 检查upstream分支是否存在
+        $upstream = git remote | Select-String "upstream"
+        if (-not $upstream) {
+            Set-Upstream
+        }
+        Fetch-And-Merge-Upstream
+
+        # 自动处理可能的合并冲突
+        $conflicts = git ls-files -u
+        if ($conflicts) {
+            Write-Host "There are merge conflicts. Please resolve them before continuing."
+            Exit
+        }
+    }
+
     if ($s -and $comment) {
         # 添加所有更改并提交
         git add .
         git commit -m "$comment"
+    } elseif ($s) {
+        Write-Host "Please provide a commit comment."
+        Exit
+    }
 
+    # 不论是否进行了更新或提交，都尝试推送到两个远程仓库
+    git push github-origin main
+    git push gitea-origin main
+
+    if ($c) {
+        # 输出$c参数的值
+        # Write-Host $c
         # 推送到两个远程仓库
         git push github-origin main
         git push gitea-origin main
-    } elseif ($s) {
-        Write-Host "Please provide a commit comment."
-    } else {
-        # if ($c) {
-        # 判断$c参数是否存在
-        if ($c) {
-            # 输出$c参数的值
-            # Write-Host $c
-            # 推送到两个远程仓库
-            git push github-origin main
-            git push gitea-origin main
-        } else {
-            Write-Host "Invalid or missing parameters."
-        }
+    } elseif (-not $update) {
+        Write-Host "Invalid or missing parameters."
     }
 }
